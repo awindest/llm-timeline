@@ -3,6 +3,7 @@
 
 ### [Website](https://llm-timeline-two.vercel.app/)
 
+<img width="979" height="792" alt="Screenshot_of_timeline" src="https://github.com/user-attachments/assets/8877e956-6f33-4345-8ad6-6e6e235fd782" />
 
 # My Process
 
