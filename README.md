@@ -1,4 +1,10 @@
-# Timeline of LLMs based upon JQuery Timeline widget
+# Timeline of LLMs
+## (based on JQuery Timeline widget)
+
+### (Demo)[https://llm-timeline-two.vercel.app/]
+
+
+# My Process
 
 First, I went to the wikipedia page for a [list of large language models](https://en.wikipedia.org/wiki/List_of_large_language_models). I copied the table and pasted it into a spreadsheet instead of having Claude scrape it. (Next time, I will paste the table into Claude and transform the data into a JSON data structure.)
 
