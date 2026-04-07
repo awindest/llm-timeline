@@ -1,7 +1,7 @@
 # Timeline of LLMs
 ## (based on JQuery Timeline widget)
 
-### (Demo)[https://llm-timeline-two.vercel.app/]
+### [Website](https://llm-timeline-two.vercel.app/)
 
 
 # My Process
