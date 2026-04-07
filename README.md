@@ -1,6 +1,21 @@
 # Timeline of LLMs based upon JQuery Timeline widget
 
-# Prompt
+First, I went to the wikipedia page for a [list of large language models](https://en.wikipedia.org/wiki/List_of_large_language_models). I copied the table and pasted it into a spreadsheet instead of having Claude scrape it. (Next time, I will paste the table into Claude and transform the data into a JSON data structure.)
+
+Second, I chatted with Claude about how to create a prompt to get what I wanted. 
+
+I then created a sveltekit project:
+
+```
+npx sv create llm-timeline
+```
+
+(I selected the skeleton project and typescript)
+
+
+Then selected the llm-timeline directory in Claude Code and I started prompting Claude as follows.
+
+# Prompts for Claude Code
 
 ```
 I have a SvelteKit project. I want a single Timeline.svelte component first, then wire it into a SvelteKit route (+page.svelte).
@@ -16,7 +31,11 @@ Use the styles found in the ./src/lib/styles directory.
 
 Stretch the x-axis so that the elements don't overlap and get rid of the scrollbar adding forward and backward arrows in the middle of the left and right hand margins
 
+Make the timeline a little taller and add a github icon button in the lower right linked to the github repository: https://github.com/awindest/llm-timeline
+
 ```
+
+Here is my CLAUDE.md file:
 
 # Claude Code Project Rules — llm-timeline
 
@@ -38,3 +57,6 @@ Stretch the x-axis so that the elements don't overlap and get rid of the scrollb
 - Page-specific styles: CSS Modules or inline styles with tokens only
 - `styles/globals.css`: global reset ONLY (box-sizing + body margin)
 - Local components stay in the page file — only shared components go in `components/`
+
+
+
