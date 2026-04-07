@@ -1298,17 +1298,17 @@
 	const SPAN_MS = END.getTime() - START.getTime();
 	const INNER_W = (END_YEAR - 2018) * YEAR_W + PAD_L + PAD_R;
 
-	const AXIS_Y = 320; // y of axis line
+	const AXIS_Y = 370; // y of axis line
 	const CARD_W = 106; // card width
 	const CARD_H = 42; // card height
 	const DOT_D = 8; // dot diameter
 	const CONN_PAD = 16; // gap from dot to card
-	const LANE_GAP = 52; // vertical distance between lanes
+	const LANE_GAP = 62; // vertical distance between lanes
 
 	// 10 lanes: 0-4 above, 5-9 below (closest first)
-	// AXIS_Y=320, CONN_PAD=16, CARD_H=42, LANE_GAP=52
-	// Lane 4 (top):    320 - 16 - 42 - 52*4 = 54   ✓
-	// Lane 9 (bottom): 320 + 16 + 52*4 + 42 = 586
+	// AXIS_Y=370, CONN_PAD=16, CARD_H=42, LANE_GAP=62
+	// Lane 4 (top):    370 - 16 - 42 - 62*4 = 64   ✓
+	// Lane 9 (bottom): 370 + 16 + 62*4 + 42 = 676
 	const LANES = [
 		{ y: AXIS_Y - CONN_PAD - CARD_H, above: true }, // 0
 		{ y: AXIS_Y - CONN_PAD - CARD_H - LANE_GAP, above: true }, // 1
@@ -1322,7 +1322,7 @@
 		{ y: AXIS_Y + CONN_PAD + LANE_GAP * 4, above: false } // 9
 	] as const;
 
-	const INNER_H = 586 + 42 + 32; // bottom of lane 9 card + bottom padding
+	const INNER_H = 676 + 42 + 36; // bottom of lane 9 card + bottom padding
 
 	// ── Helpers ─────────────────────────────────────────────────────────────────
 	function parseDate(s: string): Date {
