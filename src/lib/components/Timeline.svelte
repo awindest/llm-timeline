@@ -1488,7 +1488,7 @@
 		<a
 			href="https://en.wikipedia.org/wiki/List_of_large_language_models"
 			target="_blank"
-			rel="noopener noreferrer">Click here for source</a
+			rel="noopener noreferrer">Click here for source data</a
 		>
 	</p>
 
