@@ -66,7 +66,7 @@ Here is my CLAUDE.md file:
 - Local components stay in the page file — only shared components go in `components/`
 
 ## Future Potential Enhancements
-- Scrape the wikipedia (website)[https://en.wikipedia.org/wiki/List_of_large_language_models]
+- Scrape the wikipedia [website](https://en.wikipedia.org/wiki/List_of_large_language_models)
 - Convert tablular data into JSON
 - Get data-driven and just read in the JSON data to produce the website
 
