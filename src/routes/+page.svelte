@@ -1,6 +1,12 @@
 <script lang="ts">
 	import Timeline from '$lib/components/Timeline.svelte';
 	import { colors, radius, shadow } from '$lib/styles/tokens';
+
+	// let llms
+	// onMount(async () => {
+	// 	llms = await fetch('/api/data').then((res) => res.json());
+	// 	console.log(llms);
+	// });
 </script>
 
 <Timeline />
