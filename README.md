@@ -9,6 +9,21 @@
 
 First, I went to the wikipedia page for a [list of large language models](https://en.wikipedia.org/wiki/List_of_large_language_models). I copied the table and pasted it into a spreadsheet instead of having Claude scrape it. (Next time, I will paste the table into Claude and transform the data into a JSON data structure.)
 
+Edit - created a python script to output JSON data for input. As this information changes rapidly, I thought a mechanism to update the data should be implemented.
+
+To update the data:
+
+`cd ~/src/lib/data`
+
+`uv run fetch_llm_table.py > llm_output.json`
+
+Edit Timeline.svelte component to import the above output file
+
+`pnpm dev`
+
+to check to see if it works (sometimes wikipedia changes their html page formats)
+
+
 Second, I chatted with Claude about how to create a prompt to get what I wanted. 
 
 I then created a sveltekit project:
