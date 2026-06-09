@@ -12,8 +12,8 @@
 		cost: string;
 		notes: string;
 	}
-	import llmsData from '$lib/data/llmsMay23.json'; // easiest way
-	// import llmsData from '$lib/data/test_output.json'; // easiest way
+	// import llmsData from '$lib/data/llmsMay23.json'; // easiest way
+	import llmsData from '$lib/data/llmsJun9.json'; // easiest way
 
 	// ── Remapping Schema ────────────────────────────────────────────────────────────────
 
