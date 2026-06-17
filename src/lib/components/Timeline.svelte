@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { colors, typography, space, radius, shadow } from '$lib/styles/tokens';
+	import { browser } from '$app/environment';
 
 	interface LLM {
 		name: string;
@@ -13,7 +14,8 @@
 		notes: string;
 	}
 	// import llmsData from '$lib/data/llmsMay23.json'; // easiest way
-	import llmsData from '$lib/data/llmsJun9.json'; // easiest way
+	// import llmsData from '$lib/data/llmsJun9.json'; // easiest way
+	import llmsData from '$lib/data/llmsJun17.json'; // easiest way
 
 	// ── Remapping Schema ────────────────────────────────────────────────────────────────
 
@@ -192,6 +194,26 @@
 	// Tooltip position
 	let tipX = $derived(mouseX + 16);
 	let tipY = $derived(mouseY - 180);
+
+	// auto-scroll functionality
+	function slowScrollLeft() {
+		// Scrolls the window 1 pixel to the left on every frame
+		window.scrollBy({
+			left: -1, // Use a positive number (1) to scroll to the right
+			top: 0,
+			behavior: 'auto' // 'auto' ensures continuous, frame-by-frame movement
+		});
+
+		if (window.scrollX > 0) {
+			// Repeats the function on the next browser repaint
+			requestAnimationFrame(slowScrollLeft);
+			console.log(window.scrollX);
+		}
+	}
+	if (browser) {
+		// Start the slow horizontal scrolling loop
+		requestAnimationFrame(slowScrollLeft);
+	}
 </script>
 
 <svelte:window
