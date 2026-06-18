@@ -107,6 +107,9 @@
 		if (d.includes('mistral')) return '#fb923c';
 		if (d.includes('xai')) return '#e879f9';
 		if (d.includes('alibaba')) return '#e60f4c';
+		if (d.includes('z.ai')) return '#9D00FF';
+		if (d.includes('moonshot ai')) return '#0021F3';
+
 		return colors.textSecondary;
 	}
 
@@ -272,7 +275,7 @@
     margin-bottom: {space[6]}px;
   "
 	>
-		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', colors.teal], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Other', colors.textSecondary]] as [label, clr]}
+		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', colors.teal], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Z.ai', '#9D00FF'], ['Moonshot AI', '#0021F3'], ['Other', colors.textSecondary]] as [label, clr]}
 			<span
 				style="display:flex; align-items:center; gap:{space[1]}px; font-size:{typography.scale
 					.caption}px; color:{colors.textSecondary};"
