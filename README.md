@@ -17,6 +17,8 @@ To update the data:
 
 `uv run fetch_llm_table.py > llm_output.json`
 
+(really need to automate this)
+
 Edit Timeline.svelte component to import the above output file
 
 `pnpm dev`
