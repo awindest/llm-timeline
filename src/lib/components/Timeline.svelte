@@ -38,7 +38,9 @@
 	//   )
 	// );
 	// ── Geometry ────────────────────────────────────────────────────────────────
-	const YEAR_W = 900; // px per year — wide enough to prevent card overlap
+	// Year width should be variable as the density increases over time and the
+	// cards begin overlapping each other
+	const YEAR_W = 1600; // used to be 900; px per year — wide enough to prevent card overlap
 	const PAD_L = 48; // left padding
 	const PAD_R = 64; // right padding
 	const START = new Date(2018, 0, 1);
@@ -123,7 +125,7 @@
 	}
 
 	const positioned: Positioned[] = (() => {
-		const MIN_SEP = CARD_W + 10;
+		const MIN_SEP = CARD_W + 10; // was 10
 		const LANE_ORDER = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9];
 		const laneMax = LANES.map(() => -Infinity);
 
@@ -276,7 +278,7 @@
     margin-bottom: {space[6]}px;
   "
 	>
-		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', colors.teal], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Z.ai', '#9D00FF'], ['Moonshot AI', '#0021F3'], ['Other', colors.textSecondary]] as [label, clr]}
+		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', colors.teal], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Z.ai', '#9D00FF'], ['Moonshot AI', '#0021F3'], ['Other', colors.textSecondary]] as [label, clr] ((label, clr))}
 			<span
 				style="display:flex; align-items:center; gap:{space[1]}px; font-size:{typography.scale
 					.caption}px; color:{colors.textSecondary};"
@@ -337,7 +339,7 @@
     "
 			>
 				<!-- Year gridlines + labels -->
-				{#each YEARS as yr}
+				{#each YEARS as yr (yr)}
 					{@const xg = dateToX(new Date(yr, 0, 1))}
 					<div
 						style="
@@ -383,7 +385,7 @@
 				></div>
 
 				<!-- Events -->
-				{#each positioned as ev}
+				{#each positioned as ev (ev)}
 					{@const lane = LANES[ev.lane]}
 					{@const cardTop = lane.y}
 					{@const isAbove = lane.above}
