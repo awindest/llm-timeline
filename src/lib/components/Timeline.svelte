@@ -1,22 +1,25 @@
 <script lang="ts">
-	import { colors, typography, space, radius, shadow } from '$lib/styles/tokens';
-	import { browser } from '$app/environment';
+	import { onMount } from 'svelte'
+	import { colors, typography, space, radius, shadow } from '$lib/styles/tokens'
+	import { browser } from '$app/environment'
 
 	interface LLM {
-		name: string;
-		nameLink: string;
-		date: string;
-		developer: string;
-		developerLink: string;
-		parameters: string;
-		corpus: string;
-		cost: string;
-		notes: string;
+		name: string
+		nameLink: string
+		date: string
+		developer: string
+		developerLink: string
+		parameters: string
+		corpus: string
+		cost: string
+		notes: string
 	}
+	// ── Data (should be automated and grok the latest data.json file) ───────────────────
+
 	// import llmsData from '$lib/data/llmsMay23.json'; // easiest way
 	// import llmsData from '$lib/data/llmsJun9.json'; // easiest way
 	// import llmsData from '$lib/data/llmsJun17.json'; // easiest way
-	import llmsData from '$lib/data/llmsJul23.json'; // easiest way
+	import llmsData from '$lib/data/llmsAug22.json' // easiest way
 
 	// ── Remapping Schema ────────────────────────────────────────────────────────────────
 
@@ -40,21 +43,21 @@
 	// ── Geometry ────────────────────────────────────────────────────────────────
 	// Year width should be variable as the density increases over time and the
 	// cards begin overlapping each other
-	const YEAR_W = 1600; // used to be 900; px per year — wide enough to prevent card overlap
-	const PAD_L = 48; // left padding
-	const PAD_R = 64; // right padding
-	const START = new Date(2018, 0, 1);
-	const END_YEAR = 2027;
-	const END = new Date(END_YEAR, 0, 1);
-	const SPAN_MS = END.getTime() - START.getTime();
-	const INNER_W = (END_YEAR - 2018) * YEAR_W + PAD_L + PAD_R;
+	const YEAR_W = 1600 // used to be 900; px per year — wide enough to prevent card overlap
+	const PAD_L = 48 // left padding
+	const PAD_R = 64 // right padding
+	const START = new Date(2018, 0, 1)
+	const END_YEAR = 2027
+	const END = new Date(END_YEAR, 0, 1)
+	const SPAN_MS = END.getTime() - START.getTime()
+	const INNER_W = (END_YEAR - 2018) * YEAR_W + PAD_L + PAD_R
 
-	const AXIS_Y = 370; // y of axis line
-	const CARD_W = 106; // card width
-	const CARD_H = 42; // card height
-	const DOT_D = 8; // dot diameter
-	const CONN_PAD = 16; // gap from dot to card
-	const LANE_GAP = 62; // vertical distance between lanes
+	const AXIS_Y = 370 // y of axis line
+	const CARD_W = 106 // card width
+	const CARD_H = 42 // card height
+	const DOT_D = 8 // dot diameter
+	const CONN_PAD = 16 // gap from dot to card
+	const LANE_GAP = 62 // vertical distance between lanes
 
 	// 10 lanes: 0-4 above, 5-9 below (closest first)
 	// AXIS_Y=370, CONN_PAD=16, CARD_H=42, LANE_GAP=62
@@ -71,63 +74,93 @@
 		{ y: AXIS_Y + CONN_PAD + LANE_GAP * 2, above: false }, // 7
 		{ y: AXIS_Y + CONN_PAD + LANE_GAP * 3, above: false }, // 8
 		{ y: AXIS_Y + CONN_PAD + LANE_GAP * 4, above: false } // 9
-	] as const;
+	] as const
 
-	const INNER_H = 676 + 42 + 36; // bottom of lane 9 card + bottom padding
+	const INNER_H = 676 + 42 + 36 // bottom of lane 9 card + bottom padding
+
+	let scrollContainer: HTMLDivElement // div to scroll to current offerings
+
+	// ── Tick generation ──────────────────────────────────────────────────────────
+	interface Tick {
+		x: number
+		isMonthStart: boolean
+	}
+
+	const ticks: Tick[] = (() => {
+		const out: Tick[] = []
+		const d = new Date(START)
+		while (d < END) {
+			out.push({
+				x: dateToX(d),
+				isMonthStart: d.getDate() === 1
+			})
+			d.setDate(d.getDate() + 1)
+		}
+		return out
+	})()
+
+	// Tick sizing — small for days, larger for month starts
+	const DAY_TICK_LEN = 5
+	const MONTH_TICK_LEN = 12
+	const TICK_STROKE_DAY = 1
+	const TICK_STROKE_MONTH = 1.5
+	// ── Bottom axis position ─────────────────────────────────────────────────────
+	const BOTTOM_AXIS_Y = INNER_H - 36 // sits just above the year-label row
 
 	// ── Helpers ─────────────────────────────────────────────────────────────────
 	function parseDate(s: string): Date {
-		if (!s) return START;
-		s = s.replace(/\[\w+\]/g, '').trim();
+		if (!s) return START
+		s = s.replace(/\[\w+\]/g, '').trim()
 		if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-			const [y, m, d] = s.split('-').map(Number);
-			return new Date(y, m - 1, d);
+			const [y, m, d] = s.split('-').map(Number)
+			return new Date(y, m - 1, d)
 		}
-		const md = s.match(/^(\w+)\s+(\d+),?\s*(\d{4})$/);
-		if (md) return new Date(`${md[1]} ${md[2]}, ${md[3]}`);
-		const my = s.match(/^(\w+)\s+(\d{4})$/);
-		if (my) return new Date(`${my[1]} 1, ${my[2]}`);
-		const d = new Date(s);
-		return isNaN(d.getTime()) ? START : d;
+		const md = s.match(/^(\w+)\s+(\d+),?\s*(\d{4})$/)
+		if (md) return new Date(`${md[1]} ${md[2]}, ${md[3]}`)
+		const my = s.match(/^(\w+)\s+(\d{4})$/)
+		if (my) return new Date(`${my[1]} 1, ${my[2]}`)
+		const d = new Date(s)
+		return isNaN(d.getTime()) ? START : d
 	}
 
 	function dateToX(d: Date): number {
-		return PAD_L + ((d.getTime() - START.getTime()) / SPAN_MS) * ((END_YEAR - 2018) * YEAR_W);
+		return PAD_L + ((d.getTime() - START.getTime()) / SPAN_MS) * ((END_YEAR - 2018) * YEAR_W)
 	}
 
 	function fmtDate(d: Date): string {
-		return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+		return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
 	}
 
 	function devColor(dev: string): string {
-		const d = dev.toLowerCase();
-		if (d.includes('openai')) return colors.indigo;
-		if (d.includes('google') || d.includes('deepmind')) return colors.cyan;
-		if (d.includes('meta')) return colors.violet;
-		if (d.includes('anthropic')) return colors.teal;
-		if (d.includes('microsoft')) return colors.amber;
-		if (d.includes('deepseek')) return colors.pink;
-		if (d.includes('mistral')) return '#fb923c';
-		if (d.includes('xai')) return '#e879f9';
-		if (d.includes('alibaba')) return '#e60f4c';
-		if (d.includes('z.ai')) return '#9D00FF';
-		if (d.includes('moonshot ai')) return '#0021F3';
+		const d = dev.toLowerCase()
+		if (d.includes('openai')) return colors.indigo
+		if (d.includes('google') || d.includes('deepmind')) return colors.cyan
+		if (d.includes('meta')) return colors.violet
+		if (d.includes('anthropic')) return '#D97757'
+		if (d.includes('microsoft')) return colors.amber
+		if (d.includes('deepseek')) return colors.pink
+		if (d.includes('mistral')) return '#fb923c'
+		if (d.includes('xai')) return '#e879f9'
+		if (d.includes('alibaba')) return '#e60f4c'
+		if (d.includes('z.ai')) return '#9D00FF'
+		if (d.includes('moonshot ai')) return '#0021F3'
+		if (d.includes('nvidia')) return '#76B900' // Nvidia's logo color
 
-		return colors.textSecondary;
+		return colors.textSecondary
 	}
 
 	// ── Lane assignment ──────────────────────────────────────────────────────────
 	interface Positioned extends LLM {
-		x: number;
-		lane: number;
-		color: string;
-		parsedDate: Date;
+		x: number
+		lane: number
+		color: string
+		parsedDate: Date
 	}
 
 	const positioned: Positioned[] = (() => {
-		const MIN_SEP = CARD_W + 10; // was 10
-		const LANE_ORDER = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9];
-		const laneMax = LANES.map(() => -Infinity);
+		const MIN_SEP = CARD_W + 10 // was 10
+		const LANE_ORDER = [0, 5, 1, 6, 2, 7, 3, 8, 4, 9]
+		const laneMax = LANES.map(() => -Infinity)
 
 		return llmsData
 			.map((llm) => ({
@@ -139,93 +172,108 @@
 			}))
 			.sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime())
 			.map((ev) => {
-				ev.x = dateToX(ev.parsedDate);
-				let best = -1;
+				ev.x = dateToX(ev.parsedDate)
+				let best = -1
 				for (const li of LANE_ORDER) {
 					if (ev.x >= laneMax[li] + MIN_SEP) {
-						best = li;
-						break;
+						best = li
+						break
 					}
 				}
-				if (best === -1) best = laneMax.indexOf(Math.min(...laneMax));
-				laneMax[best] = ev.x;
-				ev.lane = best;
-				return ev;
-			});
-	})();
+				if (best === -1) best = laneMax.indexOf(Math.min(...laneMax))
+				laneMax[best] = ev.x
+				ev.lane = best
+				return ev
+			})
+	})()
 
-	const YEARS = Array.from({ length: END_YEAR - 2018 + 1 }, (_, i) => 2018 + i);
+	const YEARS = Array.from({ length: END_YEAR - 2018 + 1 }, (_, i) => 2018 + i)
 
 	// ── Pan state ────────────────────────────────────────────────────────────────
-	let viewOffset = $state(0);
-	let containerW = $state(1200);
-	let maxOffset = $derived(Math.max(0, INNER_W - containerW));
+	let viewOffset = $state(0)
+	let containerW = $state(1200)
+	let maxOffset = $derived(Math.max(0, INNER_W - containerW))
 
 	function pan(dir: 1 | -1) {
-		const step = Math.max(containerW * 0.75, 400);
-		viewOffset = Math.max(0, Math.min(maxOffset, viewOffset + dir * step));
+		autoScrollCancelled = true // manual interaction wins from now on
+		isAutoScrolling = false // pan clicks should use the eased transition
+		const step = Math.max(containerW * 0.75, 400)
+		viewOffset = Math.max(0, Math.min(maxOffset, viewOffset + dir * step))
 	}
 
 	// ── Hover state ──────────────────────────────────────────────────────────────
-	let hovered = $state<Positioned | null>(null);
-	let mouseX = $state(0);
-	let mouseY = $state(0);
-	let tipFromEvent = $state(false);
-	let clearTimer: ReturnType<typeof setTimeout> | null = null;
+	let hovered = $state<Positioned | null>(null)
+	let mouseX = $state(0)
+	let mouseY = $state(0)
+	let tipFromEvent = $state(false)
+	let clearTimer: ReturnType<typeof setTimeout> | null = null
 
 	function enterEvent(ev: Positioned) {
 		if (clearTimer) {
-			clearTimeout(clearTimer);
-			clearTimer = null;
+			clearTimeout(clearTimer)
+			clearTimer = null
 		}
-		hovered = ev;
-		tipFromEvent = true;
+		hovered = ev
+		tipFromEvent = true
 	}
 	function leaveEvent() {
 		clearTimer = setTimeout(() => {
-			if (!tipFromEvent) hovered = null;
-		}, 160);
-		tipFromEvent = false;
+			if (!tipFromEvent) hovered = null
+		}, 160)
+		tipFromEvent = false
 	}
 	function enterTooltip() {
 		if (clearTimer) {
-			clearTimeout(clearTimer);
-			clearTimer = null;
+			clearTimeout(clearTimer)
+			clearTimer = null
 		}
 	}
 	function leaveTooltip() {
-		hovered = null;
+		hovered = null
 	}
 
 	// Tooltip position
-	let tipX = $derived(mouseX + 16);
-	let tipY = $derived(mouseY - 180);
+	let tipX = $derived(mouseX + 16)
+	let tipY = $derived(mouseY - 180)
 
-	// auto-scroll functionality
-	function slowScrollLeft() {
-		// Scrolls the window 1 pixel to the left on every frame
-		window.scrollBy({
-			left: -1, // Use a positive number (1) to scroll to the right
-			top: 0,
-			behavior: 'auto' // 'auto' ensures continuous, frame-by-frame movement
-		});
+	// ── Auto-scroll state ──────────────────────────────────────────────────────
+	let autoScrollCancelled = $state(false)
+	let isAutoScrolling = $state(true) // controls whether the CSS transition applies
 
-		if (window.scrollX > 0) {
-			// Repeats the function on the next browser repaint
-			requestAnimationFrame(slowScrollLeft);
-			console.log(window.scrollX);
+	function autoScrollTimeline(targetOffset: number, duration: number) {
+		const startOffset = viewOffset
+		const diff = targetOffset - startOffset
+		let start: number | null = null
+
+		function step(timestamp: number) {
+			if (autoScrollCancelled) return // bail if the user took control
+
+			if (start === null) start = timestamp
+			const timeElapsed = timestamp - start
+			const progress = Math.min(timeElapsed / duration, 1)
+
+			viewOffset = startOffset + diff * progress // same state pan() uses
+
+			if (timeElapsed < duration) {
+				requestAnimationFrame(step)
+			} else {
+				isAutoScrolling = false // re-enable the eased transition once done
+			}
 		}
+
+		requestAnimationFrame(step)
 	}
-	if (browser) {
-		// Start the slow horizontal scrolling loop
-		requestAnimationFrame(slowScrollLeft);
-	}
+
+	onMount(() => {
+		// Start the slow horizontal scrolling loop: target, duration
+		autoScrollTimeline(maxOffset, 40000) // animate viewOffset: 0 -> maxOffset
+	})
 </script>
 
 <svelte:window
 	onmousemove={(e) => {
-		mouseX = e.clientX;
-		mouseY = e.clientY;
+		mouseX = e.clientX
+		mouseY = e.clientY
 	}}
 />
 
@@ -265,7 +313,7 @@
 			href="https://en.wikipedia.org/wiki/List_of_large_language_models"
 			target="_blank"
 			rel="noopener noreferrer">Click here for source data</a
-		> · Last Update: Jul 23, 2026
+		> · Last Update: Aug 22, 2026
 	</p>
 
 	<!-- Color legend -->
@@ -278,7 +326,7 @@
     margin-bottom: {space[6]}px;
   "
 	>
-		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', colors.teal], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Z.ai', '#9D00FF'], ['Moonshot AI', '#0021F3'], ['Other', colors.textSecondary]] as [label, clr] ((label, clr))}
+		{#each [['OpenAI', colors.indigo], ['Google / DeepMind', colors.cyan], ['Meta', colors.violet], ['Anthropic', '#D97757'], ['Microsoft', colors.amber], ['DeepSeek', colors.pink], ['Mistral', '#fb923c'], ['xAI', '#e879f9'], ['Alibaba', '#e60f4c'], ['Z.ai', '#9D00FF'], ['Moonshot AI', '#0021F3'], ['Nvidia', '#76B900'], ['Other', colors.textSecondary]] as [label, clr] ((label, clr))}
 			<span
 				style="display:flex; align-items:center; gap:{space[1]}px; font-size:{typography.scale
 					.caption}px; color:{colors.textSecondary};"
@@ -318,6 +366,7 @@
 		<!-- Viewport (no scrollbar) -->
 		<div
 			bind:clientWidth={containerW}
+			bind:this={scrollContainer}
 			style="
         flex: 1;
         overflow: hidden;
@@ -334,7 +383,7 @@
       height: {INNER_H}px;
       background: {colors.bgSurface};
       transform: translateX(-{viewOffset}px);
-      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: {isAutoScrolling ? 'none' : 'transform 0.38s cubic-bezier(0.4, 0, 0.2, 1)'};
       will-change: transform;
     "
 			>
@@ -357,7 +406,7 @@
           position: absolute;
           left: {xg + 4}px;
           bottom: 10px;
-          color: {colors.textDim};
+          color: {colors.textPrimary};
           font-size: {typography.scale.caption}px;
           font-weight: {typography.weight.medium};
           user-select: none;
@@ -383,6 +432,77 @@
         pointer-events: none;
       "
 				></div>
+				<!-- Day/month tick marks -->
+				<svg
+					width={INNER_W}
+					height={INNER_H}
+					style="position: absolute; left: 0; top: 0; pointer-events: none;"
+				>
+					{#each ticks as t, i (i)}
+						{@const len = t.isMonthStart ? MONTH_TICK_LEN : DAY_TICK_LEN}
+						<line
+							x1={t.x}
+							y1={AXIS_Y - len / 2}
+							x2={t.x}
+							y2={AXIS_Y + len / 2}
+							stroke={t.isMonthStart ? colors.indigo : colors.indigo}
+							stroke-width={t.isMonthStart ? TICK_STROKE_MONTH : TICK_STROKE_DAY}
+						/>
+					{/each}
+				</svg>
+				<!-- Bottom axis line -->
+				<div
+					style="
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: {BOTTOM_AXIS_Y}px;
+        height: 2px;
+        background: linear-gradient(to right,
+          transparent 0%,
+          {colors.borderDefault} 3%,
+          {colors.borderDefault} 97%,
+          transparent 100%);
+        pointer-events: none;
+      "
+				></div>
+				<!-- Day/month tick marks — top -->
+				<svg
+					width={INNER_W}
+					height={INNER_H}
+					style="position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1;"
+				>
+					{#each ticks as t, i (i)}
+						{@const len = t.isMonthStart ? MONTH_TICK_LEN : DAY_TICK_LEN}
+						<line
+							x1={t.x}
+							y1={AXIS_Y - len / 2}
+							x2={t.x}
+							y2={AXIS_Y + len / 2}
+							stroke={t.isMonthStart ? colors.indigo : colors.indigo}
+							stroke-width={t.isMonthStart ? TICK_STROKE_MONTH : TICK_STROKE_DAY}
+						/>
+					{/each}
+				</svg>
+
+				<!-- Day/month tick marks — bottom -->
+				<svg
+					width={INNER_W}
+					height={INNER_H}
+					style="position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1;"
+				>
+					{#each ticks as t, i (i)}
+						{@const len = t.isMonthStart ? MONTH_TICK_LEN : DAY_TICK_LEN}
+						<line
+							x1={t.x}
+							y1={BOTTOM_AXIS_Y - len / 2}
+							x2={t.x}
+							y2={BOTTOM_AXIS_Y + len / 2}
+							stroke={t.isMonthStart ? colors.indigo : colors.indigo}
+							stroke-width={t.isMonthStart ? TICK_STROKE_MONTH : TICK_STROKE_DAY}
+						/>
+					{/each}
+				</svg>
 
 				<!-- Events -->
 				{#each positioned as ev (ev)}
@@ -432,7 +552,7 @@
 						onmouseenter={() => enterEvent(ev)}
 						onmouseleave={leaveEvent}
 						onkeydown={(e) => {
-							if (e.key === 'Enter' && ev.nameLink) window.open(ev.nameLink, '_blank');
+							if (e.key === 'Enter' && ev.nameLink) window.open(ev.nameLink, '_blank')
 						}}
 					></div>
 
@@ -462,7 +582,7 @@
 						onmouseenter={() => enterEvent(ev)}
 						onmouseleave={leaveEvent}
 						onkeydown={(e) => {
-							if (e.key === 'Enter' && ev.nameLink) window.open(ev.nameLink, '_blank');
+							if (e.key === 'Enter' && ev.nameLink) window.open(ev.nameLink, '_blank')
 						}}
 					>
 						<span
