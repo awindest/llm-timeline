@@ -19,7 +19,7 @@
 	// import llmsData from '$lib/data/llmsMay23.json'; // easiest way
 	// import llmsData from '$lib/data/llmsJun9.json'; // easiest way
 	// import llmsData from '$lib/data/llmsJun17.json'; // easiest way
-	import llmsData from '$lib/data/llmsAug22.json' // easiest way
+	import llmsData from '$lib/data/llmsSep7.json' // easiest way
 
 	// ── Remapping Schema ────────────────────────────────────────────────────────────────
 
@@ -313,7 +313,7 @@
 			href="https://en.wikipedia.org/wiki/List_of_large_language_models"
 			target="_blank"
 			rel="noopener noreferrer">Click here for source data</a
-		> · Last Update: Aug 22, 2026
+		> · Last Update: Sep 7, 2026
 	</p>
 
 	<!-- Color legend -->
