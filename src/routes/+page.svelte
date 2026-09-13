@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Timeline from '$lib/components/Timeline.svelte';
-	import { colors, radius, shadow } from '$lib/styles/tokens';
+	import Timeline from '$lib/components/DynamicTimelineMonthHover.svelte'
+	import { colors, radius, shadow } from '$lib/styles/tokens'
 
 	// let llms
 	// onMount(async () => {
@@ -36,16 +36,16 @@
 		z-index: 100;
 	"
 	onmouseenter={(e) => {
-		const el = e.currentTarget as HTMLAnchorElement;
-		el.style.borderColor = colors.indigo;
-		el.style.color = colors.indigo;
-		el.style.boxShadow = shadow.glow(colors.indigo);
+		const el = e.currentTarget as HTMLAnchorElement
+		el.style.borderColor = colors.indigo
+		el.style.color = colors.indigo
+		el.style.boxShadow = shadow.glow(colors.indigo)
 	}}
 	onmouseleave={(e) => {
-		const el = e.currentTarget as HTMLAnchorElement;
-		el.style.borderColor = colors.borderDefault;
-		el.style.color = colors.textSecondary;
-		el.style.boxShadow = shadow.glow(colors.borderDefault);
+		const el = e.currentTarget as HTMLAnchorElement
+		el.style.borderColor = colors.borderDefault
+		el.style.color = colors.textSecondary
+		el.style.boxShadow = shadow.glow(colors.borderDefault)
 	}}
 >
 	<!-- GitHub mark SVG -->
